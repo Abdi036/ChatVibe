@@ -1,7 +1,7 @@
 import { generateToken } from "../utils/libs.js";
 import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
-// import cloudinary from "../utils/cloudinary.js";
+import cloudinary from "../utils/cloudinary.js";
 
 export const signup = async (req, res) => {
   const { fullName, email, password } = req.body;
@@ -71,35 +71,53 @@ export const login = async (req, res) => {
     const user = await User.findOne({ email });
 
     if (!user) {
-      return res.status(400).json({ message: "Invalid credentials" });
+      return res.status(400).json({
+        status: "fail",
+        message: "Invalid credentials",
+      });
     }
 
     const isPasswordCorrect = await bcrypt.compare(password, user.password);
     if (!isPasswordCorrect) {
-      return res.status(400).json({ message: "Invalid credentials" });
+      return res.status(400).json({
+        status: "fail",
+        message: "Invalid credentials",
+      });
     }
 
-    generateToken(user._id, res);
+    const token = generateToken(user._id, res);
 
     res.status(200).json({
-      _id: user._id,
-      fullName: user.fullName,
-      email: user.email,
-      profilePic: user.profilePic,
+      status: "success",
+      data: {
+        _id: user._id,
+        fullName: user.fullName,
+        email: user.email,
+        profilePic: user.profilePic,
+      },
+      token,
     });
   } catch (error) {
-    console.log("Error in login controller", error.message);
-    res.status(500).json({ message: "Internal Server Error" });
+    res.status(500).json({
+      status: "error",
+      message: "Internal Server Error",
+    });
   }
 };
 
 export const logout = (req, res) => {
   try {
     res.cookie("jwt", "", { maxAge: 0 });
-    res.status(200).json({ message: "Logged out successfully" });
+    res.status(200).json({
+      status: "success",
+      message: "Logged out successfully",
+    });
   } catch (error) {
     console.log("Error in logout controller", error.message);
-    res.status(500).json({ message: "Internal Server Error" });
+    res.status(500).json({
+      status: "error",
+      message: "Internal Server Error",
+    });
   }
 };
 
@@ -109,7 +127,10 @@ export const updateProfile = async (req, res) => {
     const userId = req.user._id;
 
     if (!profilePic) {
-      return res.status(400).json({ message: "Profile pic is required" });
+      return res.status(400).json({
+        status: "fail",
+        message: "Profile pic is required",
+      });
     }
 
     const uploadResponse = await cloudinary.uploader.upload(profilePic);
@@ -119,18 +140,30 @@ export const updateProfile = async (req, res) => {
       { new: true }
     );
 
-    res.status(200).json(updatedUser);
+    res.status(200).json({
+      status: "success",
+      data: {
+        updatedUser,
+      },
+    });
   } catch (error) {
-    console.log("error in update profile:", error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({
+      status: "error",
+      message: "Internal server error",
+    });
   }
 };
 
 export const checkAuth = (req, res) => {
   try {
-    res.status(200).json(req.user);
+    res.status(200).json({
+      status: "success",
+      data: req.user,
+    });
   } catch (error) {
-    console.log("Error in checkAuth controller", error.message);
-    res.status(500).json({ message: "Internal Server Error" });
+    res.status(500).json({
+      status: "error",
+      message: "Internal Server Error",
+    });
   }
 };
