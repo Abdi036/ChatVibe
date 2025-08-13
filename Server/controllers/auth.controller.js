@@ -149,9 +149,7 @@ export const updateProfile = async (req, res) => {
 
     res.status(200).json({
       status: "success",
-      data: {
-        updatedUser,
-      },
+      data: updatedUser,
     });
   } catch (error) {
     res.status(500).json({
