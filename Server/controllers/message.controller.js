@@ -1,6 +1,7 @@
 import User from "../models/user.model.js";
 import Message from "../models/message.model.js";
 import cloudinary from "../utils/cloudinary.js";
+import { getReceiverSocketId } from "../utils/socket.js";
 
 // displays all users except the logged-in(my own profile) user
 export const getUsersForSidebar = async (req, res) => {
@@ -35,18 +36,10 @@ export const getMessages = async (req, res) => {
       ],
     });
 
-    if (messages.length === 0) {
-      return res.status(200).json({
-        status: "success",
-        message: "No messages found",
-      });
-    }
-
+    // Always return a consistent structure
     res.status(200).json({
       status: "success",
-      data: {
-        messages,
-      },
+      data: messages,
     });
   } catch (error) {
     res.status(500).json({
@@ -78,19 +71,20 @@ export const sendMessage = async (req, res) => {
 
     await newMessage.save();
 
-    // const receiverSocketId = getReceiverSocketId(receiverId);
-    // if (receiverSocketId) {
-    //   io.to(receiverSocketId).emit("newMessage", newMessage);
-    // }
+    const receiverSocketId = getReceiverSocketId(receiverId);
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit("newMessage", newMessage);
+    }
 
     res.status(201).json({
       status: "success",
       data: newMessage,
     });
   } catch (error) {
+    console.log("Error in sendMessage controller: ", error.message);
     res.status(500).json({
       status: "error",
-      error: "Internal server error",
+      message: "Internal server error",
     });
   }
 };

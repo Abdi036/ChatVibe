@@ -20,7 +20,6 @@ const Sidebar = () => {
       ? users.filter((user) => onlineUsers.includes(user._id))
       : users
     : [];
-
   if (isUsersLoading) return <SidebarSkeleton />;
 
   return (
@@ -87,7 +86,13 @@ const Sidebar = () => {
         ))}
 
         {filteredUsers.length === 0 && (
-          <div className="text-center text-zinc-500 py-4">No online users</div>
+          <div className="text-center text-zinc-500 py-4">
+            {users.length === 0
+              ? "No users found"
+              : showOnlineOnly
+              ? "No online users"
+              : "No users to display"}
+          </div>
         )}
       </div>
     </aside>
