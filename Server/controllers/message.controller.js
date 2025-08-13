@@ -1,7 +1,7 @@
 import User from "../models/user.model.js";
 import Message from "../models/message.model.js";
 import cloudinary from "../utils/cloudinary.js";
-import { getReceiverSocketId } from "../utils/socket.js";
+import { getReceiverSocketId, io } from "../utils/socket.js";
 
 // displays all users except the logged-in(my own profile) user
 export const getUsersForSidebar = async (req, res) => {
