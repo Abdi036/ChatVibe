@@ -35,6 +35,13 @@ export const getMessages = async (req, res) => {
       ],
     });
 
+    if (messages.length === 0) {
+      return res.status(200).json({
+        status: "success",
+        message: "No messages found",
+      });
+    }
+
     res.status(200).json({
       status: "success",
       data: {
