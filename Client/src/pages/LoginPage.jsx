@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { useAuthStore } from "../store/useAuthStore";
 import AuthImagePattern from "../components/AuthImagePattern";
+import { loginMessages } from "../libs/authMessages";
 import { Link } from "react-router-dom";
-import { Eye, EyeOff, Loader2, Lock, Mail, MessageSquare } from "lucide-react";
+import { Eye, EyeOff, Loader2, Send, Lock, Mail } from "lucide-react";
 
-const LoginPage = () => {
+function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
@@ -29,7 +30,7 @@ const LoginPage = () => {
                 className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20
               transition-colors"
               >
-                <MessageSquare className="w-6 h-6 text-primary" />
+                <Send className="w-6 h-6 text-primary" />
               </div>
               <h1 className="text-2xl font-bold mt-2">Welcome Back</h1>
               <p className="text-base-content/60">Sign in to your account</p>
@@ -48,7 +49,7 @@ const LoginPage = () => {
                 </div>
                 <input
                   type="email"
-                  className={`input input-bordered w-full pl-10`}
+                  className="input w-full focus:outline-none focus:ring-2 focus:ring-primary"
                   placeholder="you@example.com"
                   value={formData.email}
                   onChange={(e) =>
@@ -68,7 +69,7 @@ const LoginPage = () => {
                 </div>
                 <input
                   type={showPassword ? "text" : "password"}
-                  className={`input input-bordered w-full pl-10`}
+                  className="input w-full focus:outline-none focus:ring-2 focus:ring-primary"
                   placeholder="••••••••"
                   value={formData.password}
                   onChange={(e) =>
@@ -118,12 +119,12 @@ const LoginPage = () => {
 
       {/* Right Side - Image/Pattern */}
       <AuthImagePattern
-        title={"Welcome back!"}
-        subtitle={
-          "Sign in to continue your conversations and catch up with your messages."
-        }
+        title={loginMessages.title}
+        subtitle={loginMessages.subtitle}
+        messages={loginMessages.messages}
+        callToAction={loginMessages.callToAction}
       />
     </div>
   );
-};
+}
 export default LoginPage;
