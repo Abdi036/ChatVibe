@@ -22,9 +22,8 @@ const ChatContainer = () => {
   useEffect(() => {
     getMessages(selectedUser._id);
 
-    
     subscribeToMessages();
-    
+
     return () => unsubscribeFromMessages();
   }, [
     selectedUser._id,
@@ -52,7 +51,11 @@ const ChatContainer = () => {
   return (
     <div className="flex-1 flex flex-col overflow-auto">
       <ChatHeader />
-
+      {messages.length === 0 ? (
+        <div className="flex-1 flex items-center justify-center">
+          <h1>Let's Chat my Friend</h1>
+        </div>
+      ) : null}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {(Array.isArray(messages) ? messages : []).map((message) => (
           <div

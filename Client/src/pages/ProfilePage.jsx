@@ -5,6 +5,8 @@ import { Camera, Mail, User } from "lucide-react";
 const ProfilePage = () => {
   const { authUser, isUpdatingProfile, updateProfile } = useAuthStore();
   const [selectedImg, setSelectedImg] = useState(null);
+  const [editingName, setEditingName] = useState(false);
+  const [fullName, setFullName] = useState(authUser?.fullName || "");
 
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
@@ -75,9 +77,47 @@ const ProfilePage = () => {
                 <User className="w-4 h-4" />
                 Full Name
               </div>
-              <p className="px-4 py-2.5 bg-base-200 rounded-lg border">
-                {authUser?.fullName}
-              </p>
+              {editingName ? (
+                <form
+                  className="flex gap-2"
+                  onSubmit={async (e) => {
+                    e.preventDefault();
+                    if (!fullName.trim() || fullName === authUser.fullName) {
+                      setEditingName(false);
+                      setFullName(authUser.fullName);
+                      return;
+                    }
+                    await updateProfile({ fullName });
+                    setEditingName(false);
+                  }}
+                >
+                  <input
+                    className="px-4 py-2.5 bg-base-200 rounded-lg border w-full focus:outline-none focus:ring-2 focus:ring-primary"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    disabled={isUpdatingProfile}
+                    autoFocus
+                    onBlur={() => {
+                      setEditingName(false);
+                      setFullName(authUser.fullName);
+                    }}
+                  />
+                  <button
+                    type="submit"
+                    className="btn btn-primary btn-sm"
+                    disabled={isUpdatingProfile}
+                  >
+                    Save
+                  </button>
+                </form>
+              ) : (
+                <p
+                  className="px-4 py-2.5 bg-base-200 rounded-lg border cursor-pointer hover:bg-base-100"
+                  onClick={() => setEditingName(true)}
+                >
+                  {authUser?.fullName || "Click to add your name"}
+                </p>
+              )}
             </div>
 
             <div className="space-y-1.5">
@@ -95,12 +135,8 @@ const ProfilePage = () => {
             <h2 className="text-lg font-medium  mb-4">Account Information</h2>
             <div className="space-y-3 text-sm">
               <div className="flex items-center justify-between py-2 border-b border-zinc-700">
-                <span>Member Since</span>
+                <span>Joined at</span>
                 <span>{authUser.createdAt?.split("T")[0]}</span>
-              </div>
-              <div className="flex items-center justify-between py-2">
-                <span>Account Status</span>
-                <span className="text-green-500">Active</span>
               </div>
             </div>
           </div>
