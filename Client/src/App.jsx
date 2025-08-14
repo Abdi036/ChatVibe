@@ -3,8 +3,8 @@ import Navbar from "./components/Navbar";
 import HomePage from "./pages/HomePage";
 import SignUpPage from "./pages/SignUpPage";
 import LoginPage from "./pages/LoginPage";
-import SettingsPage from "./pages/SettingsPage";
 import ProfilePage from "./pages/ProfilePage";
+import NotFoundPage from "./components/NotFoundPage";
 
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuthStore } from "./store/useAuthStore";
@@ -33,6 +33,7 @@ function App() {
       </div>
       <div className="mt-4">
         <Routes>
+          <Route path="*" element={<NotFoundPage />} />
           <Route
             path="/"
             element={authUser ? <HomePage /> : <Navigate to="/login" />}
@@ -45,7 +46,6 @@ function App() {
             path="/login"
             element={!authUser ? <LoginPage /> : <Navigate to="/" />}
           />
-          <Route path="/settings" element={authUser ? <SettingsPage /> : <Navigate to="/login" />} />
           <Route
             path="/profile"
             element={authUser ? <ProfilePage /> : <Navigate to="/login" />}

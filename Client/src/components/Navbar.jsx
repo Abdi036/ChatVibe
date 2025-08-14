@@ -27,22 +27,16 @@ const Navbar = () => {
           <div className="flex items-center gap-2">
             {authUser && (
               <>
-                <Link to={"/profile"} className={`btn btn-sm gap-2`}>
+                <Link
+                  to={"/profile"}
+                  className="flex items-center gap-2 px-4 py-2 rounded-md bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-semibold shadow-md hover:from-blue-600 hover:to-indigo-600 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                >
                   <User className="size-5" />
                   <span className="hidden sm:inline">Profile</span>
                 </Link>
-                <Link
-                  to={"/settings"}
-                  className={`
-              btn btn-sm gap-2 transition-colors
-              
-              `}
-                >
-                  <Settings className="w-4 h-4" />
-                  <span className="hidden sm:inline">Settings</span>
-                </Link>
+
                 <button
-                  className="flex gap-2 items-center cursor-pointer bg-red-400 p-1 rounded-md shadow-lg"
+                  className="flex gap-2 items-center px-4 py-2 rounded-md bg-gradient-to-r from-red-500 to-pink-500 text-white font-semibold shadow-md hover:from-red-600 hover:to-pink-600 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-400 cursor-pointer"
                   onClick={logout}
                 >
                   <LogOut className="size-5" />
