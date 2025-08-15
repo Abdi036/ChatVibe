@@ -1,4 +1,5 @@
 import { generateToken } from "../utils/libs.js";
+import { sendEmail } from "../utils/email.js";
 import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import cloudinary from "../utils/cloudinary.js";
@@ -161,6 +162,56 @@ export const updateProfile = async (req, res) => {
     res.status(500).json({
       status: "error",
       message: "Internal server error",
+    });
+  }
+};
+
+export const forgotPassword = async (req, res) => {
+  const user = await User.findOne({ email: req.body.email });
+
+  if (!user) {
+    return res.status(404).json({
+      status: "fail",
+      message: "user not found",
+    });
+  }
+
+  // Generate a password reset token
+  const resetToken = user.generateResetToken();
+  const message = `Your password reset token is: ${resetToken}.\nIf you didn't forget your password, please ignore this email!`;
+
+  const htmlMessage = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+      <h2 style="color: #333;">Password Reset Request</h2>
+      <p>Hello,</p>
+      <p>We received a request to reset your password. If you didn't make this request, you can safely ignore this email.</p>
+      <p>Your password reset token is:</p>
+      <p style="word-break: break-all; color: #666; font-weight: bold;">${resetToken}</p>
+      <p>This token will expire in 10 minutes.</p>
+      <p>If you didn't request this password reset, please ignore this email.</p>
+      <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+      <p style="color: #666; font-size: 12px;">This is an automated message, please do not reply to this email.</p>
+    </div>
+  `;
+  // Send the reset token to the user's email
+  try {
+    await sendEmail({
+      email: user.email,
+      subject: "Password Reset token is valid for 10 minutes",
+      message,
+      text: `Your password reset token is: ${resetToken}`,
+      html: htmlMessage,
+    });
+
+    res.status(200).json({
+      status: "success",
+      message: "Password reset token sent to email",
+    });
+  } catch (error) {
+    console.log("Error sending password reset email", error.message);
+    res.status(500).json({
+      status: "error",
+      message: "Internal Server Error",
     });
   }
 };
