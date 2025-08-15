@@ -15,7 +15,8 @@ function LoginPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    login(formData);
+    await login(formData);
+    window.location.reload();
   };
 
   return (
