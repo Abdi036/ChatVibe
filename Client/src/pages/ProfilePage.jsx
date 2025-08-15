@@ -102,13 +102,6 @@ const ProfilePage = () => {
                       setFullName(authUser.fullName);
                     }}
                   />
-                  <button
-                    type="submit"
-                    className="btn btn-primary btn-sm"
-                    disabled={isUpdatingProfile}
-                  >
-                    Save
-                  </button>
                 </form>
               ) : (
                 <p
