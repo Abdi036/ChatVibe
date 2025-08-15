@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema(
@@ -32,7 +33,6 @@ const userSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-import crypto from "crypto";
 
 userSchema.methods.generateResetToken = function () {
   // Generate a random token
