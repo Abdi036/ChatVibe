@@ -1,8 +1,10 @@
 import { generateToken } from "../utils/libs.js";
 import { sendEmail } from "../utils/email.js";
-import User from "../models/user.model.js";
-import bcrypt from "bcryptjs";
 import cloudinary from "../utils/cloudinary.js";
+import User from "../models/user.model.js";
+
+import bcrypt from "bcryptjs";
+import crypto from "crypto";
 
 export const signup = async (req, res) => {
   const { fullName, email, password } = req.body;
@@ -178,6 +180,7 @@ export const forgotPassword = async (req, res) => {
 
   // Generate a password reset token
   const resetToken = user.generateResetToken();
+  await user.save({ validateBeforeSave: false });
   const message = `Your password reset token is: ${resetToken}.\nIf you didn't forget your password, please ignore this email!`;
 
   const htmlMessage = `
@@ -209,6 +212,52 @@ export const forgotPassword = async (req, res) => {
     });
   } catch (error) {
     console.log("Error sending password reset email", error.message);
+    res.status(500).json({
+      status: "error",
+      message: "Internal Server Error",
+    });
+  }
+};
+
+export const resetPassword = async (req, res) => {
+  try {
+    const { token, password } = req.body;
+
+    if (!token || !password) {
+      return res.status(400).json({
+        status: "fail",
+        message: "Please provide both token and new password",
+      });
+    }
+
+    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+
+    const user = await User.findOne({
+      resetPasswordToken: hashedToken,
+      resetPasswordExpires: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return res.status(400).json({
+        status: "fail",
+        message: "Token is invalid or has expired",
+      });
+    }
+
+    // Hash the new password before saving
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(password, salt);
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+    await user.save();
+
+    const jwtToken = generateToken(user._id, res);
+
+    res.status(200).json({
+      status: "success",
+      token: jwtToken,
+    });
+  } catch (error) {
     res.status(500).json({
       status: "error",
       message: "Internal Server Error",
