@@ -22,10 +22,28 @@ const userSchema = new mongoose.Schema(
     lastSeen: {
       type: Date,
       default: Date.now,
-    }
+    },
+    resetPasswordToken: {
+      type: String,
+    },
+    resetPasswordExpires: {
+      type: Date,
+    },
   },
   { timestamps: true }
 );
+import crypto from "crypto";
+
+userSchema.methods.generateResetToken = function () {
+  // Generate a random token
+  const resetToken = crypto.randomBytes(32).toString("hex");
+  this.resetPasswordToken = crypto
+    .createHash("sha256")
+    .update(resetToken)
+    .digest("hex");
+  this.resetPasswordExpires = Date.now() + 10 * 60 * 1000;
+  return resetToken;
+};
 
 const User = mongoose.model("User", userSchema);
 
