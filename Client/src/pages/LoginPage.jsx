@@ -16,7 +16,6 @@ function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     await login(formData);
-    window.location.reload();
   };
 
   return (
@@ -106,7 +105,11 @@ function LoginPage() {
               )}
             </button>
           </form>
-
+          <div className="text-center">
+            <Link to="/forgot-password" className="link link-primary">
+              forgotPassword?
+            </Link>
+          </div>
           <div className="text-center">
             <p className="text-base-content/60">
               Don&apos;t have an account?{" "}

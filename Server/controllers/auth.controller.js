@@ -123,7 +123,6 @@ export const logout = (req, res) => {
       message: "Logged out successfully",
     });
   } catch (error) {
-    console.log("Error in logout controller", error.message);
     res.status(500).json({
       status: "error",
       message: "Internal Server Error",
@@ -169,49 +168,41 @@ export const updateProfile = async (req, res) => {
 };
 
 export const forgotPassword = async (req, res) => {
-  const user = await User.findOne({ email: req.body.email });
-
-  if (!user) {
-    return res.status(404).json({
-      status: "fail",
-      message: "user not found",
-    });
-  }
-
-  // Generate a password reset token
-  const resetToken = user.generateResetToken();
-  await user.save({ validateBeforeSave: false });
-  const message = `Your password reset token is: ${resetToken}.\nIf you didn't forget your password, please ignore this email!`;
-
-  const htmlMessage = `
-    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-      <h2 style="color: #333;">Password Reset Request</h2>
-      <p>Hello,</p>
-      <p>We received a request to reset your password. If you didn't make this request, you can safely ignore this email.</p>
-      <p>Your password reset token is:</p>
-      <p style="word-break: break-all; color: #666; font-weight: bold;">${resetToken}</p>
-      <p>This token will expire in 10 minutes.</p>
-      <p>If you didn't request this password reset, please ignore this email.</p>
-      <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
-      <p style="color: #666; font-size: 12px;">This is an automated message, please do not reply to this email.</p>
-    </div>
-  `;
-  // Send the reset token to the user's email
   try {
+    const user = await User.findOne({ email: req.body.email });
+
+    if (!user) {
+      return res.status(404).json({
+        status: "fail",
+        message: "User not found",
+      });
+    }
+
+    // Generate reset token
+    const resetToken = user.generateResetToken();
+    await user.save({ validateBeforeSave: false });
+
+    // Create reset link
+    const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
+
+    const message = `
+      <p>Hello,</p>
+      <p>You requested a password reset. Click the link below to reset your password:</p>
+      <a href="${resetUrl}">Click Here to Reset</a>
+      <p>This link is valid for 10 minutes.</p>
+    `;
+
     await sendEmail({
       email: user.email,
-      subject: "Password Reset token is valid for 10 minutes",
-      message,
-      text: `Your password reset token is: ${resetToken}`,
-      html: htmlMessage,
+      subject: "Password Reset Link",
+      html: message,
     });
 
     res.status(200).json({
       status: "success",
-      message: "Password reset token sent to email",
+      message: "Password reset link sent to email",
     });
   } catch (error) {
-    console.log("Error sending password reset email", error.message);
     res.status(500).json({
       status: "error",
       message: "Internal Server Error",
@@ -221,12 +212,13 @@ export const forgotPassword = async (req, res) => {
 
 export const resetPassword = async (req, res) => {
   try {
-    const { token, password } = req.body;
+    const { token } = req.params;
+    const { newPassword } = req.body;
 
-    if (!token || !password) {
+    if (!newPassword) {
       return res.status(400).json({
         status: "fail",
-        message: "Please provide both token and new password",
+        message: "Please provide a new password",
       });
     }
 
@@ -244,17 +236,22 @@ export const resetPassword = async (req, res) => {
       });
     }
 
-    // Hash the new password before saving
+    // Update password
     const salt = await bcrypt.genSalt(10);
-    user.password = await bcrypt.hash(password, salt);
+    user.password = await bcrypt.hash(newPassword, salt);
+
+    // Clear reset fields
     user.resetPasswordToken = undefined;
     user.resetPasswordExpires = undefined;
+
     await user.save();
 
+    // Optionally login user immediately
     const jwtToken = generateToken(user._id, res);
 
     res.status(200).json({
       status: "success",
+      message: "Password reset successful",
       token: jwtToken,
     });
   } catch (error) {

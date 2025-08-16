@@ -71,6 +71,33 @@ export const useAuthStore = create((set, get) => ({
     }
   },
 
+  forgotPassword: async (email) => {
+    set({ isSession: true });
+    try {
+      await axiosInstance.post("/auth/forgot-password", { email });
+      toast.success("Password reset link sent to your email");
+    } catch (error) {
+      toast.error(error.response.data.message);
+    } finally {
+      set({ isSession: false });
+    }
+  },
+
+  resetPassword: async (token, newPassword) => {
+    set({ isSession: true });
+    try {
+      await axiosInstance.patch(`/auth/reset-password/${token}`, {
+        newPassword,
+      });
+      toast.success("Password reset successfully");
+    } catch (error) {
+      toast.error(error.response.data.message);
+      return false;
+    } finally {
+      set({ isSession: false });
+    }
+  },
+
   updateProfile: async (data) => {
     set({ isUpdatingProfile: true });
     try {
