@@ -1,0 +1,22 @@
+{
+  "name": "chatvibe",
+  "version": "1.0.0",
+  "description": "ChatVibe is a modern real-time chat application built with a React frontend (Vite) and a Node.js/Express backend. It allows users to sign up, log in, chat with others, and manage their profiles. The app features authentication, real-time messaging, and a clean, responsive UI.",
+  "main": "index.js",
+  "scripts": {
+     "build":"npm install --prefix Server && npm install --prefix Client && npm run build --prefix Client",
+     "start":"npm run start --prefix Server"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Abdi036/Chat_App.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Abdi036/Chat_App/issues"
+  },
+  "homepage": "https://github.com/Abdi036/Chat_App#readme"
+}
