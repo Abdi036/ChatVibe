@@ -6,6 +6,11 @@ import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
 
+const baseURL =
+  import.meta.env.MODE === "development"
+    ? "http://localhost:3000/api/v1"
+    : "/api/v1";
+
 export const signup = async (req, res) => {
   const { fullName, email, password } = req.body;
   try {
@@ -183,7 +188,7 @@ export const forgotPassword = async (req, res) => {
     await user.save({ validateBeforeSave: false });
 
     // Create reset link
-    const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
+    const resetUrl = `${baseURL}/reset-password/${resetToken}`;
 
     const message = `
       <p>Hello,</p>
