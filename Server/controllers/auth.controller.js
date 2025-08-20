@@ -7,7 +7,7 @@ import bcrypt from "bcryptjs";
 import crypto from "crypto";
 
 const baseURL =
-  import.meta.env.MODE === "development"
+  process.env.NODE_ENV === "development"
     ? "http://localhost:3000/api/v1"
     : "/api/v1";
 
