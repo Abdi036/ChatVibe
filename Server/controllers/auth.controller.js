@@ -5,11 +5,8 @@ import User from "../models/user.model.js";
 
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
-
-const baseURL =
-  process.env.NODE_ENV === "development"
-    ? "http://localhost:3000/api/v1"
-    : "/api/v1";
+  
+const baseURL ="http://localhost:3000/api/v1"
 
 export const signup = async (req, res) => {
   const { fullName, email, password } = req.body;
